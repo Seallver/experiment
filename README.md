@@ -8,7 +8,7 @@ make
 make bm
 ```
 
-清楚产生的文件
+清理产生的文件
 ```bash
 make clean
 ```
