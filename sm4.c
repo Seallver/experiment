@@ -37,6 +37,7 @@ static uint8_t SBOX[256] = {
 //左移
 #define rotl32(value, shift) ((value << shift) | value >> (32 - shift))
 
+// SM4密钥初始化函数
 void sm4_keyInit(uint8_t *key, SM4_Key *sm4_key) {
   uint32_t k[4];
   uint32_t tmp;
@@ -66,7 +67,8 @@ void sm4_keyInit(uint8_t *key, SM4_Key *sm4_key) {
   }
 }
 
-uint32_t sBox_transformation(uint32_t input) {
+// S-Box变换函数
+uint32_t sBox(uint32_t input) {
   uint8_t a = (input >> 24) & 0xFF;
   uint8_t b = (input >> 16) & 0xFF;
   uint8_t c = (input >> 8) & 0xFF;
@@ -78,4 +80,55 @@ uint32_t sBox_transformation(uint32_t input) {
   d = SBOX[d];
 
   return ((uint32_t)a << 24) | ((uint32_t)b << 16) | ((uint32_t)c << 8) | d;
+}
+
+// 将四个字节合并为一个32bit数
+uint32_t joint_bytes(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3) {
+  return ((uint32_t)b0 << 24) | ((uint32_t)b1 << 16) | ((uint32_t)b2 << 8) | b3;
+}
+
+// 将一个32bit数分解为四个字节
+void split_int(uint32_t n, uint8_t out[4]) {
+  out[0] = (n >> 24) & 0xFF;
+  out[1] = (n >> 16) & 0xFF;
+  out[2] = (n >> 8) & 0xFF;
+  out[3] = n & 0xFF;
+}
+
+// SM4 迭代主函数
+void sm4_main(const uint8_t input[16], const uint32_t rk[32], int mode,
+              uint8_t output[16]) {
+  uint32_t text[4];
+
+  // 将输入按32位分组
+  for (int i = 0; i < 4; i++) {
+    text[i] = joint_bytes(input[4 * i], input[4 * i + 1], input[4 * i + 2],
+                          input[4 * i + 3]);
+  }
+
+  // 32轮迭代
+  for (int i = 0; i < 32; i++) {
+    int index = (mode == 0) ? i : (31 - i); // mode==0 加密；mode==1 解密
+    uint32_t box_input = text[1] ^ text[2] ^ text[3] ^ rk[index];
+    uint32_t box_output = sBox(box_input);
+    uint32_t temp = text[0] ^ box_output ^ rotl32(box_output, 2) ^
+                    rotl32(box_output, 10) ^ rotl32(box_output, 18) ^
+                    rotl32(box_output, 24);
+    text[0] = text[1];
+    text[1] = text[2];
+    text[2] = text[3];
+    text[3] = temp;
+  }
+
+  for (int i = 0; i < 4; i++) {
+    split_int(text[3 - i], output + 4 * i);
+  }
+}
+
+void sm4_encrypt(const uint8_t *input, const SM4_Key *key, uint8_t *output) {
+  sm4_main(input, key->rk, 0, output);
+}
+
+void sm4_decrypt(const uint8_t *input, const SM4_Key *key, uint8_t *output) {
+  sm4_main(input, key->rk, 1, output);
 }
