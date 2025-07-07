@@ -36,30 +36,28 @@ static __m128i SM4_SBox(__m128i x);
 static void SM4_AESNI_do(uint8_t *in, uint8_t *out, SM4_Key *sm4_key, int enc) {
   __m128i X[4], Tmp[4];
   __m128i vindex;
-  // Load Data
+  // load and pack
   Tmp[0] = _mm_loadu_si128((const __m128i *)in + 0);
   Tmp[1] = _mm_loadu_si128((const __m128i *)in + 1);
   Tmp[2] = _mm_loadu_si128((const __m128i *)in + 2);
   Tmp[3] = _mm_loadu_si128((const __m128i *)in + 3);
   vindex = _mm_setr_epi8(3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12);
-  // Pack Data
   X[0] = MM_PACK0_EPI32(Tmp[0], Tmp[1], Tmp[2], Tmp[3]);
   X[1] = MM_PACK1_EPI32(Tmp[0], Tmp[1], Tmp[2], Tmp[3]);
   X[2] = MM_PACK2_EPI32(Tmp[0], Tmp[1], Tmp[2], Tmp[3]);
   X[3] = MM_PACK3_EPI32(Tmp[0], Tmp[1], Tmp[2], Tmp[3]);
-  // Shuffle Endian
+
   X[0] = _mm_shuffle_epi8(X[0], vindex);
   X[1] = _mm_shuffle_epi8(X[1], vindex);
   X[2] = _mm_shuffle_epi8(X[2], vindex);
   X[3] = _mm_shuffle_epi8(X[3], vindex);
-  // Loop
   for (int i = 0; i < 32; i++) {
     __m128i k =
         _mm_set1_epi32((enc == 0) ? sm4_key->rk[i] : sm4_key->rk[31 - i]);
     Tmp[0] = MM_XOR4(X[1], X[2], X[3], k);
-    // SBox
+    // S盒
     Tmp[0] = SM4_SBox(Tmp[0]);
-    // L
+    // L函数
     Tmp[0] = MM_XOR6(X[0], Tmp[0], MM_ROTL_EPI32(Tmp[0], 2),
                      MM_ROTL_EPI32(Tmp[0], 10), MM_ROTL_EPI32(Tmp[0], 18),
                      MM_ROTL_EPI32(Tmp[0], 24));
@@ -68,12 +66,11 @@ static void SM4_AESNI_do(uint8_t *in, uint8_t *out, SM4_Key *sm4_key, int enc) {
     X[2] = X[3];
     X[3] = Tmp[0];
   }
-  // Shuffle Endian
   X[0] = _mm_shuffle_epi8(X[0], vindex);
   X[1] = _mm_shuffle_epi8(X[1], vindex);
   X[2] = _mm_shuffle_epi8(X[2], vindex);
   X[3] = _mm_shuffle_epi8(X[3], vindex);
-  // Pack and Store
+  // pack and store
   _mm_storeu_si128((__m128i *)out + 0, MM_PACK0_EPI32(X[3], X[2], X[1], X[0]));
   _mm_storeu_si128((__m128i *)out + 1, MM_PACK1_EPI32(X[3], X[2], X[1], X[0]));
   _mm_storeu_si128((__m128i *)out + 2, MM_PACK2_EPI32(X[3], X[2], X[1], X[0]));
