@@ -2,7 +2,6 @@
 #define SM4_H
 
 #include "stdint.h"
-#include "stdio.h"
 
 //轮密钥
 typedef struct sm4_key {
