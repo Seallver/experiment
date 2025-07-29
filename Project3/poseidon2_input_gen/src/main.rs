@@ -13,16 +13,22 @@ struct Input {
     hash: String,
 }
 
+use num_bigint::BigUint;
+use num_traits::Zero;
+
 fn main() {
     let inputs = vec![Fr::from_str("123456789").unwrap(), Fr::from_str("987654321").unwrap()];
     let poseidon = Poseidon::new();
     let hash = poseidon.hash(inputs.clone()).unwrap();
 
-    let input_strings: Vec<String> = inputs.iter().map(|x| format!("{}", x)).collect();
+    let input_strings = vec![
+        "123456789".to_string(),
+        "987654321".to_string(),
+    ];
 
     let input_struct = Input {
         x: input_strings,
-        hash: format!("{}", hash),
+        hash: hash.to_string(),
     };
 
     let json_str = serde_json::to_string_pretty(&input_struct).unwrap();
