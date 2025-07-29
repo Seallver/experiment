@@ -28,5 +28,25 @@ def embed_watermark(image_path, watermark_path, output_path):
     print(f"水印嵌入成功，保存为：{output_path}\n")
     return wm_small.shape
 
+# ========== 2. 提取水印 ==========
+def extract_watermark(watermarked_path, original_path, output_path, wm_shape, attacked_method='none'):
+    if attacked_method == 'flip':
+        wm_img = cv2.flip(cv2.imread(watermarked_path, cv2.IMREAD_GRAYSCALE), 1)
+    else:
+        wm_img = cv2.imread(watermarked_path, cv2.IMREAD_GRAYSCALE)
+        
+    ori_img = cv2.imread(original_path, cv2.IMREAD_GRAYSCALE)
+
+    cA_wm, _ = pywt.dwt2(wm_img, 'haar')
+    cA_ori, _ = pywt.dwt2(ori_img, 'haar')
+
+    alpha = 0.5
+    wm_extracted = (cA_wm - cA_ori) / alpha
+    wm_extracted = wm_extracted[:wm_shape[0], :wm_shape[1]]
+    wm_extracted = np.clip(wm_extracted, 0, 255).astype(np.uint8)
+
+    cv2.imwrite(output_path, wm_extracted)
+    print(f"* 水印提取完成，保存为：{output_path}\n")
+
 
 
