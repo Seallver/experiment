@@ -1,19 +1,16 @@
 pragma circom 2.0.0;
 
-include "circomlib/poseidon.circom";
+include "circomlib/circuits/poseidon.circom";  // 确保路径正确
 
-// 使用 Poseidon2 哈希，输入长度为 2
-template Poseidon2Verifier() {
-    signal input preimage[2];    // 私有输入，哈希原文
-    signal input expectedHash;   // 公开输入，哈希结果
+template Poseidon2Hash() {
+    signal input x[2];       // 输入信号
+    signal output hash;      // 输出信号（计算结果）
 
-    component hashFunc = Poseidon(2);
-    for (var i = 0; i < 2; i++) {
-        hashFunc.inputs[i] <== preimage[i];
-    }
+    component poseidon = Poseidon(2);  // 实例化 Poseidon(2)
+    poseidon.inputs[0] <== x[0];      // 连接输入
+    poseidon.inputs[1] <== x[1];
 
-    // 断言计算结果等于预期哈希
-    hashFunc.output === expectedHash;
+    hash <== poseidon.out;   // 约束输出（注意：Poseidon 的输出可能是 `.out` 而非 `.output`）
 }
 
-component main = Poseidon2Verifier();
+component main {public [x]} = Poseidon2Hash();  // 声明公开输入
