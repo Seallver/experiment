@@ -4,3 +4,5 @@ package-lock.json
 package.json
 
 build/
+
+poseidon2_input_gen/Cargo.lock
