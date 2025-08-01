@@ -3,6 +3,9 @@ import numpy as np
 import pywt
 import os
 
+OUTPUT_DIR = 'output'
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 # ========== 1. 嵌入水印 ==========
 def embed_watermark(image_path, watermark_path, output_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -40,7 +43,7 @@ def extract_watermark(watermarked_path, original_path, output_path, wm_shape, at
     cA_wm, _ = pywt.dwt2(wm_img, 'haar')
     cA_ori, _ = pywt.dwt2(ori_img, 'haar')
 
-    alpha = 0.5
+    alpha = 0.3
     wm_extracted = (cA_wm - cA_ori) / alpha
     wm_extracted = wm_extracted[:wm_shape[0], :wm_shape[1]]
     wm_extracted = np.clip(wm_extracted, 0, 255).astype(np.uint8)
@@ -59,9 +62,8 @@ def attack_image(image_path, output_path, method='contrast'):
         attacked = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
     elif method == 'crop':
         h, w = image.shape[:2]
-        crop_margin = 100 
-        # 防止裁剪超出边界
-        crop_margin = min(crop_margin, h//2 - 1, w//2 - 1)
+        crop_margin = 100 # 裁剪边距
+        crop_margin = min(crop_margin, h//2 - 1, w//2 - 1) # 防止裁剪超出边界
         attacked = image[crop_margin:h-crop_margin, crop_margin:w-crop_margin]
         attacked = cv2.resize(attacked, (w, h))
     elif method == 'contrast':
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     # 输入路径
     original_img = 'image.png'
     watermark_img = 'logo.png'
-    wm_out_img = 'watermarked.png'
+    wm_out_img = os.path.join(OUTPUT_DIR, 'watermarked.png')
 
     # 1. 嵌入水印
     wm_shape = embed_watermark(original_img, watermark_img, wm_out_img)
@@ -86,10 +88,10 @@ if __name__ == '__main__':
     # 2. 攻击测试
     attack_methods = ['flip', 'translate', 'crop', 'contrast']
     for method in attack_methods:
-        attacked_img = f"attacked_{method}.png"
+        attacked_img = os.path.join(OUTPUT_DIR, f"attacked_{method}.png")
         attack_image(wm_out_img, attacked_img, method=method)
 
         # 3. 提取水印
-        extracted_img = f"extracted_{method}.png"
+        extracted_img = os.path.join(OUTPUT_DIR, f"extracted_{method}.png")
         extract_watermark(attacked_img, original_img, extracted_img, wm_shape, attacked_method=method)
 
