@@ -40,6 +40,7 @@ cA_{\text{embed}}(i,j) = cA(i,j) + \alpha \cdot W(i,j), \quad \forall (i,j) \in 
 $$
 
    其中 $\alpha$ 为嵌入强度因子；
+   
 5. 使用修改后的 $cA_{\text{embed}}$ 与原始的高频系数 $cH, cV, cD$ 进行逆小波变换（IDWT），重构出带水印图像 $I_w$：
 
 $$
