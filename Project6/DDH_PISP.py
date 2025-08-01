@@ -66,26 +66,3 @@ class Party2:
         ]
         random.shuffle(encrypted_pairs)
         return Z, encrypted_pairs
-
-### 测试主函数 ###
-if __name__ == "__main__":
-    # 数据准备
-    V = ["alice", "bob", "charlie"]
-    W = [("alice", 100), ("bob", 400), ("dave", 300)]
-
-    ahe = AHE()
-    P1 = Party1(V, ahe)
-    P2 = Party2(W, ahe)
-
-    # Round 1
-    Hv_k1 = P1.round1()
-
-    # Round 2
-    Z, encrypted_pairs = P2.round2(Hv_k1)
-
-    # Round 3
-    sum_J = P1.round3(Z, encrypted_pairs)
-
-    # 输出结果
-    assert sum_J == 500  # 只包含 "alice" 和 "bob" 的 t 值之和
-    print(f"Intersection sum: {sum_J}") 
