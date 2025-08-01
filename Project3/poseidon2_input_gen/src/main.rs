@@ -16,19 +16,34 @@ struct Input {
 use num_bigint::BigUint;
 use num_traits::Zero;
 
+macro_rules! INPUT1 {
+    () => {
+        "123456789"
+    };
+}
+
+macro_rules! INPUT2 {
+    () => {
+        "987654321"
+    };
+}
+
 fn main() {
-    let inputs = vec![Fr::from_str("123456789").unwrap(), Fr::from_str("987654321").unwrap()];
+    let inputs = vec![Fr::from_str(INPUT1!()).unwrap(), Fr::from_str(INPUT2!()).unwrap()];
     let poseidon = Poseidon::new();
     let hash = poseidon.hash(inputs.clone()).unwrap();
 
     let input_strings = vec![
-        "123456789".to_string(),
-        "987654321".to_string(),
+        INPUT1!().to_string(),
+        INPUT2!().to_string(),
     ];
+
+    let hash_str = hash.to_string();
+    let clean_hash = hash_str.trim_start_matches("Fr(").trim_end_matches(')');
 
     let input_struct = Input {
         x: input_strings,
-        hash: hash.to_string(),
+        hash: clean_hash.to_string(),
     };
 
     let json_str = serde_json::to_string_pretty(&input_struct).unwrap();
