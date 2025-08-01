@@ -20,9 +20,9 @@
 1. 将原图像 $I$ 和水印图像 $W$ 转换为灰度图；
 2. 对图像 $I$ 进行二维 Haar 小波分解（1 级 DWT），得到四个子带：
 
-   $$
-   \text{DWT}(I) \Rightarrow \{cA, cH, cV, cD\}
-   $$
+$$
+\text{DWT}(I) \Rightarrow \{cA, cH, cV, cD\}
+$$
 
    其中：
    - $cA$：低频近似系数（Approximation）；
@@ -30,16 +30,16 @@
 3. 将水印图像 $W$ 缩放为 $cA$ 尺寸的 $\frac{1}{4}$（即：$\frac{m}{2} \times \frac{n}{2}$）；
 4. 以加性嵌入方式将水印嵌入 $cA$ 的左上角区域：
 
-   $$
-   cA_{\text{embed}}(i,j) = cA(i,j) + \alpha \cdot W(i,j), \quad \forall (i,j) \in \left[0,\tfrac{m}{2}\right) \times \left[0,\tfrac{n}{2}\right)
-   $$
+$$
+cA_{\text{embed}}(i,j) = cA(i,j) + \alpha \cdot W(i,j), \quad \forall (i,j) \in \left[0,\tfrac{m}{2}\right) \times \left[0,\tfrac{n}{2}\right)
+$$
 
    其中 $\alpha$ 为嵌入强度因子；
 5. 使用修改后的 $cA_{\text{embed}}$ 与原始的高频系数 $cH, cV, cD$ 进行逆小波变换（IDWT），重构出带水印图像 $I_w$：
 
-   $$
-   I_w = \text{IDWT}(cA_{\text{embed}}, cH, cV, cD)
-   $$
+$$
+I_w = \text{IDWT}(cA_{\text{embed}}, cH, cV, cD)
+$$
 
 ---
 
@@ -59,15 +59,15 @@
 
 1. 对原图像 $I$ 和攻击图像 $I_w^{\text{attacked}}$ 分别做 DWT 分解，提取各自的近似系数：
 
-   $$
-   \text{DWT}(I) \Rightarrow cA, \quad \text{DWT}(I_w^{\text{attacked}}) \Rightarrow cA^{\text{attacked}}
-   $$
+$$
+\text{DWT}(I) \Rightarrow cA, \quad \text{DWT}(I_w^{\text{attacked}}) \Rightarrow cA^{\text{attacked}}
+$$
 
 2. 计算差值并恢复水印图像：
 
-   $$
-   \hat{W}(i,j) = \frac{cA^{\text{attacked}}(i,j) - cA(i,j)}{\alpha}, \quad \forall (i,j) \in \left[0,\tfrac{m}{2}\right) \times \left[0,\tfrac{n}{2}\right)
-   $$
+$$
+\hat{W}(i,j) = \frac{cA^{\text{attacked}}(i,j) - cA(i,j)}{\alpha}, \quad \forall (i,j) \in \left[0,\tfrac{m}{2}\right) \times \left[0,\tfrac{n}{2}\right)
+$$
    
 3. 若有需要，可对 $\hat{W}$ 进行插值放大以便展示或评估。
 
