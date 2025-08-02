@@ -2,14 +2,12 @@
 
 #include <immintrin.h>
 
-static void SM4_AESNI_do(uint8_t *in, uint8_t *out, SM4_Key *sm4_key, int enc);
-
-void SM4_AESNI_Encrypt(uint8_t *plaintext, SM4_Key *sm4_key,
+void sm4_encrypt_aesni(const uint8_t *plaintext, const SM4_Key *sm4_key,
                        uint8_t *ciphertext) {
   SM4_AESNI_do(plaintext, ciphertext, sm4_key, 0);
 }
 
-void SM4_AESNI_Decrypt(uint8_t *ciphertext, SM4_Key *sm4_key,
+void sm4_decrypt_aesni(const uint8_t *ciphertext, const SM4_Key *sm4_key,
                        uint8_t *plaintext) {
   SM4_AESNI_do(ciphertext, plaintext, sm4_key, 1);
 }
@@ -33,7 +31,8 @@ void SM4_AESNI_Decrypt(uint8_t *ciphertext, SM4_Key *sm4_key,
 
 static __m128i SM4_SBox(__m128i x);
 
-static void SM4_AESNI_do(uint8_t *in, uint8_t *out, SM4_Key *sm4_key, int enc) {
+void SM4_AESNI_do(const uint8_t *in, uint8_t *out, const SM4_Key *sm4_key,
+                  int enc) {
   __m128i X[4], Tmp[4];
   __m128i vindex;
   // load and pack

@@ -9,7 +9,7 @@ typedef struct sm4_key {
 } SM4_Key;
 
 //初始化密钥
-void sm4_keyInit(uint8_t *key, SM4_Key *sm4_key);
+void sm4_keyInit(const uint8_t *key, SM4_Key *sm4_key);
 
 //加密函数
 void sm4_encrypt(const uint8_t *input, const SM4_Key *key, uint8_t *output);

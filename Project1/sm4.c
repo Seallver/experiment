@@ -38,7 +38,7 @@ static uint8_t SBOX[256] = {
 #define rotl32(value, shift) ((value << shift) | value >> (32 - shift))
 
 // SM4密钥初始化函数
-void sm4_keyInit(uint8_t *key, SM4_Key *sm4_key) {
+void sm4_keyInit(const uint8_t *key, SM4_Key *sm4_key) {
   uint32_t k[4];
   uint32_t tmp;
   uint8_t *tmp_ptr8 = (uint8_t *)&tmp;
