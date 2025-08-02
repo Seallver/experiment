@@ -18,6 +18,7 @@ _POINT_BYTES = 2 * _FIELD_BYTES + 1
 
 
 class OptimizedSM2:
+    """SM2算法优化实现"""
     def __init__(self):
         self.p = SM2_P
         self.a = SM2_A
@@ -228,26 +229,42 @@ class OptimizedSM2:
         )
         return left == right
 
-def main():
-    sm2 = OptimizedSM2()
+class SM2Signature(OptimizedSM2):
+    def sign(self, msg: str, private_key: int, k: int = None) -> tuple[int, int]:
+        """SM2签名算法"""
+        e = int.from_bytes(self._sm3_hash_bytes(msg.encode()), 'big')
+        d = private_key
+        
+        if k is None:
+            k = secrets.randbelow(self.n - 1) + 1
+        else:  # 用于测试固定k值的情况
+            if k <= 0 or k >= self.n:
+                raise ValueError("无效的k值")
+        
+        P = self._scalar_multiply_naf(self.G, k)
+        r = (e + P[0]) % self.n
+        if r == 0 or r + k == self.n:
+            return self.sign(msg, private_key, k)
+        
+        s = (self._fast_mod_inverse(1 + d, self.n) * (k - r * d)) % self.n
+        if s == 0:
+            return self.sign(msg, private_key, k)
+        
+        return (r, s)
     
-    private_key, public_key = sm2.generate_keypair()
-    print(f"私钥：0x{private_key:x}")
-    print(f"公钥：{public_key}\n")
-
-    message = "Hello World!"
-    print(f"明文：{message}")
-    
-    ciphertext = sm2.encrypt(message, public_key)
-    print(f"密文：{ciphertext}")
-
-    plaintext = sm2.decrypt(ciphertext, private_key)
-    print(f"解密结果：{plaintext}")
-
-    result = "解密成功" if plaintext == message else "失败"
-    print(f"{result}\n")
-
-
-if __name__ == "__main__":
-    main()
-
+    def verify(self, msg: str, signature: tuple[int, int], public_key: tuple[int, int]) -> bool:
+        """SM2签名验证"""
+        r, s = signature
+        if not (1 <= r < self.n and 1 <= s < self.n):
+            return False
+        
+        e = int.from_bytes(self._sm3_hash_bytes(msg.encode()), 'big')
+        t = (r + s) % self.n
+        if t == 0:
+            return False
+        
+        P1 = self._scalar_multiply_naf(self.G, s)
+        P2 = self._scalar_multiply_naf(public_key, t)
+        P = self._point_add_optimized(P1, P2)
+        
+        return (e + P[0]) % self.n == r
