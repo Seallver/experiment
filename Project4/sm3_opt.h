@@ -6,6 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sm3_opt(unsigned char *msg, unsigned int msglen, unsigned char *out_hash);
+void sm3_OPT(unsigned char *msg, unsigned int msglen, unsigned char *out_hash);
 
 #endif

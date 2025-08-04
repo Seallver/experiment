@@ -32,7 +32,7 @@ void test_case(const char *label, const uint8_t *msg, size_t msglen) {
   sm3_final(&ctx, digest_std);
 
   // 优化实现
-  sm3_opt((unsigned char *)msg, (unsigned int)msglen, digest_opt);
+  sm3_OPT((unsigned char *)msg, (unsigned int)msglen, digest_opt);
 
   // 输出结果
   printf("%s\n", label);

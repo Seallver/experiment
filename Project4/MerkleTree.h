@@ -30,11 +30,21 @@ typedef struct {
   bool is_left;
 } MerkleProofItem;
 
-bool BuildProofRFC6962(MerkleNode *node, size_t index, size_t total_leaves,
-                       MerkleProofItem proof[], size_t *proof_index);
+bool BuildInclusiveProof(MerkleNode *node, size_t index, size_t total_leaves,
+                         MerkleProofItem proof[], size_t *proof_index);
 
-bool VerifyMerkleProofRFC6962(const uint8_t *leaf_data, size_t leaf_len,
-                              size_t index, const MerkleProofItem proof[],
-                              size_t proof_len, const uint8_t *expected_root);
+void ComputVrfyRoot(const uint8_t *leaf_data, size_t leaf_len, size_t index,
+                    const MerkleProofItem proof[], size_t proof_len,
+                    uint8_t *vrfy_root);
+
+#define LEAF_COUNT 100000
+
+// 构建叶子不在树中的证明
+int BuildExclusiveProof(MerkleNode *root,
+                        const uint8_t leaf_hashes[LEAF_COUNT][SM3_HASH_SIZE],
+                        const uint8_t target_hash[SM3_HASH_SIZE],
+                        MerkleProofItem proof1[32], size_t *proof_len1,
+                        MerkleProofItem proof2[32], size_t *proof_len2,
+                        size_t *index1, size_t *index2);
 
 #endif

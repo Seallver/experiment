@@ -179,7 +179,7 @@ void Block(unsigned char *msg, unsigned int msglen) {
   }
 }
 
-int sm3_opt(unsigned char *msg, unsigned int msglen, unsigned char *out_hash) {
+void sm3_OPT(unsigned char *msg, unsigned int msglen, unsigned char *out_hash) {
   SM3_Init();
   Block(msg, msglen);
 
@@ -190,5 +190,4 @@ int sm3_opt(unsigned char *msg, unsigned int msglen, unsigned char *out_hash) {
     out_hash[i * 4 + 2] = (g_hash[i] >> 8) & 0xFF;
     out_hash[i * 4 + 3] = g_hash[i] & 0xFF;
   }
-  return 1;
 }
