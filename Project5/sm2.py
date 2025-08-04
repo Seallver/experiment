@@ -1,6 +1,5 @@
 import secrets
 import struct
-import time
 from math import gcd, ceil, log
 from typing import Tuple, Optional, List
 from gmssl import sm3
