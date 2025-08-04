@@ -343,7 +343,7 @@ $$
 s_s = \left[(1 + d_A)^{-1} \cdot (k - r_2 \cdot d_A)\right] \bmod n
 $$
 
-#### 私钥恢复流程（通过两个签名恢复d_A）
+#### 私钥恢复流程（通过两个签名恢复 $d_A$ ）
 
 1. 建立方程组：
 
@@ -355,7 +355,10 @@ s_2(1 + d_A) \equiv (k - r_2 \cdot d_A) \pmod{n}
 $$
 
 2. 消去$k$得到：
-   $$s_1 - s_2 \equiv (r_2 - r_1) \cdot d_A \pmod{n}$$
+
+$$
+s_1 - s_2 \equiv (r_2 - r_1) \cdot d_A \pmod{n}
+$$
 
 3. 解出私钥$d_A$：
 
@@ -375,16 +378,19 @@ s_2(1 + d_A) &\equiv k - r_2 d_A \pmod{n}
 $$
 
 将两式相减消去$k$：
+
 $$
 (s_1 - s_2)(1 + d_A) \equiv (r_2 - r_1)d_A \pmod{n}
 $$
 
 展开整理：
+
 $$
 s_1 - s_2 + (s_1 - s_2)d_A \equiv (r_2 - r_1)d_A \pmod{n}
 $$
 
-将含$d_A$项移到左边：
+将含 $d_A$ 项移到左边：
+
 $$
 (s_1 - s_2 + r_1 - r_2)d_A \equiv s_2 - s_1 \pmod{n}
 $$
@@ -399,7 +405,7 @@ $$
 
 ### 3. 两个用户用了相同的 k 进行签名，可互相推导对方的私钥
 
-#### Alice签名消息$M_1$
+#### Alice签名消息 $M_1$ 
 1. 随机选择整数$k$
 2. 计算椭圆曲线点：
 
@@ -425,7 +431,7 @@ $$
 \sigma_A = (r_1, s_1)
 $$
 
-#### Bob签名消息$M_2$（重用Alice的k值）
+#### Bob签名消息 $M_2$ （重用Alice的k值）
 1. 使用相同的$k$值：
 
 $$
@@ -450,7 +456,7 @@ $$
 \sigma_B = (r_2, s_2)
 $$
 
-#### Alice推导Bob的私钥$d_B$
+#### Alice推导Bob的私钥 $d_B$ 
 1. 从Bob的签名方程：
 
 $$
@@ -463,7 +469,7 @@ $$
 d_B \equiv \frac{k - s_2}{s_2 + r_2} \bmod n
 $$
 
-#### Bob推导Alice的私钥$d_A$
+#### Bob推导Alice的私钥 $d_A$ 
 1. 从Alice的签名方程：
 
 $$
