@@ -480,7 +480,7 @@ $$
 7. 对最后可能不完整的块：
 
 $$
-Y_n^{*} = X_n^{*} \oplus 
+Y_n^* = \text{MSB}_{\text{len}(X_n)}\big(\text{Enc}_{HK} (CB_n)\big) \oplus X_n^*  
 $$
 
 即仅取加密结果的最高位对应长度部分，与 $X_n^*$ 异或。
