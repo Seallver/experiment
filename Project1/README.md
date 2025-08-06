@@ -196,7 +196,7 @@ $$
 
 需要注意的是，8-bit 数与矩阵的对应关系有所不同：
 
-- 在 SM4 中：$s=b_0~b_1~\cdots~b_7$ 对应向量为 $[b_0, b_1, \cdots, b_7]^T$ 
+- 在 SM4 中： $s=b_0 b_1 \cdots b_7$ 对应向量为 $[b_0, b_1, \cdots, b_7]^T$ 
 - 在 AES 中：对应向量为 $[b_7, b_6, \cdots, b_0]^T$ 
 
 因此，可以通过修改矩阵的行列顺序进行抵消。
@@ -480,7 +480,7 @@ $$
 7. 对最后可能不完整的块：
 
 $$
-Y_{n}^{*} = X_{n}^{*} \oplus \text{MSB}_{\text{len}(X_n)}\big(\text{Enc}_{HK}(CB_n)\big)
+Y_n^* = X_n^* \oplus \text{MSB}_{|X_n|}\big(\text{Enc}_{HK} (CB_n)\big)
 $$
 
 即仅取加密结果的最高位对应长度部分，与 $X_n^*$ 异或。
