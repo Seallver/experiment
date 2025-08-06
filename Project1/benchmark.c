@@ -1,6 +1,6 @@
 #include "sm4.h"
 #include "sm4_aesni.h"
-#include "sm4_opt.h"
+#include "sm4_ttable.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

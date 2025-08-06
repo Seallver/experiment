@@ -1,4 +1,4 @@
-#include "sm4_opt.h"
+#include "sm4_ttable.h"
 #include <stdlib.h>
 
 // 4个T表

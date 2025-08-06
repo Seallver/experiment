@@ -6,16 +6,22 @@
 
 ```bash
 .
-├── README.md             # 项目说明文档  
-├── benchmark.c           # 基准测试主程序
-├── main.c                # 正确性测试主程序  
-├── makefile              # 构建脚本，支持编译、测试和清理  
-├── sm4.c                 # SM4 基础实现  
-├── sm4.h                
-├── sm4_aesni.c           # 使用 AES-NI 指令优化的实现  
-├── sm4_aesni.h            
-├── sm4_opt.c             # 其他优化版本实现  
-└── sm4_opt.h               
+├── README.md # 项目说明文档
+├── benchmark.c # 基准测试主程序，负责性能测试
+├── main.c # 正确性测试主程序，用于功能验证
+├── makefile # 构建脚本，支持编译、测试和清理操作
+├── sm4.c # SM4 算法的基础实现
+├── sm4.h # SM4 算法头文件，声明接口
+├── sm4_aesni.c # 基于 AES-NI 指令集优化的 SM4 实现
+├── sm4_aesni.h # AES-NI 优化实现的头文件
+├── sm4_ttable.c # 采用查表优化的 SM4 实现
+├── sm4_ttable.h # 查表优化实现的头文件
+└── SM4_GCM/ # GCM 模式相关代码目录
+    ├── ghash.c # Galois Hash（GHASH）实现
+    ├── ghash.h # GHASH 头文件
+    ├── sm4_gcm.c # SM4 GCM 模式实现
+    ├── sm4_gcm.h # SM4 GCM 头文件
+    └── sm4_gcm_test.c # GCM 模式测试程序
 ```
 
 ## 使用方法
@@ -27,9 +33,14 @@
 make
 ```
 
-benchmark基准测试：
+benchmark 基准测试：
 ```bash
 make bm
+```
+
+SM4-GCM 加密模式测试：
+```bash
+make gcm
 ```
 
 清理产生的文件
