@@ -83,7 +83,7 @@ W_j = P_1(W_{j-16} \oplus W_{j-9} \oplus (W_{j-16} \lll 15)) \oplus (W_{j-13} \l
 $$
 
 $$
-W_j^{'} = W_j \oplus W_{j+4}
+W_j^{\prime} = W_j \oplus W_{j+4}
 $$
 
 最终得到 132 个字用于压缩。
