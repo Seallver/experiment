@@ -5,6 +5,16 @@
 
 #include "sm4_gcm.h"
 
+extern const GHASH_METHOD GHASH_COMMAN = {.init = ghash_init,
+                                          .update = ghash_update,
+                                          .final = ghash_final,
+                                          .reset = ghash_reset};
+
+extern const GHASH_METHOD GHASH_TABLE = {.init = ghash_table_init,
+                                         .update = ghash_table_update,
+                                         .final = ghash_table_final,
+                                         .reset = ghash_table_reset};
+
 // 打印十六进制辅助函数
 void print_hex(const char *label, const uint8_t *data, size_t len) {
   printf("%s:", label);
@@ -16,7 +26,7 @@ void print_hex(const char *label, const uint8_t *data, size_t len) {
   printf("\n");
 }
 
-int main() {
+void test(const GHASH_METHOD *ghash_impl) {
   // 测试向量（你可以换成真实测试向量）
   uint8_t key[16] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
                      0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10};
@@ -41,7 +51,7 @@ int main() {
 
   // ---------- 加密过程 ----------
   GCM_SM4_CTX ctx;
-  gcm_sm4_init(&ctx, key, iv, sizeof(iv));
+  gcm_sm4_init(&ctx, key, iv, sizeof(iv), ghash_impl);
   gcm_sm4_aad(&ctx, aad, aad_len);
   gcm_sm4_encrypt(&ctx, plaintext, pt_len, ciphertext);
   gcm_sm4_tag(&ctx, tag);
@@ -53,7 +63,7 @@ int main() {
 
   // ---------- 解密过程 ----------
   int result = sm4_gcm_decrypt(key, iv, sizeof(iv), aad, aad_len, ciphertext,
-                               pt_len, tag, decrypted);
+                               pt_len, tag, decrypted, ghash_impl);
 
   if (result == 0) {
     printf("\n[✓] Tag verified. Decryption successful!\n");
@@ -68,6 +78,17 @@ int main() {
   } else {
     printf("\n[✗] Authentication tag mismatch! Decryption failed.\n");
   }
+}
+
+int main() {
+
+  printf("test gcm with comman ghash\n");
+  test(&GHASH_COMMAN);
+
+  printf("\n==========================\n\n");
+
+  printf("test gcm with ghash table\n");
+  test(&GHASH_TABLE);
 
   return 0;
 }

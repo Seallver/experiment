@@ -1,6 +1,6 @@
 # 项目介绍
 
-本项目实现了国密对称加密算法 SM4 的多个版本，包括基础实现、AES-NI 指令优化版本和 T-table 查找表等其他优化版本，并提供了测试和基准评估工具。通过对比不同实现的性能，验证优化策略的效果。最后实现了 GCM 加密模式以及借助查找表的优化。
+本项目实现了国密对称加密算法 SM4 的多个版本，包括基础实现、AES-NI 指令优化版本和 T-table 查找表等其他优化版本，并提供了测试和基准评估工具。通过对比不同实现的性能，验证优化策略的效果。最后实现了 GCM 加密模式以及借助查找表的优化，同样配备了测试方案。
 
 ## 项目结构
 
@@ -17,8 +17,10 @@
 ├── sm4_ttable.c # 采用查表优化的 SM4 实现
 ├── sm4_ttable.h # 查表优化实现的头文件
 └── SM4_GCM/ # GCM 模式相关代码目录
-    ├── ghash.c # Galois Hash（GHASH）实现
+    ├── ghash.c # Galois Hash（GHASH）原版实现
     ├── ghash.h # GHASH 头文件
+    ├── ghash_table.c # Ghash 查找表实现
+    ├── ghash_table.h # GHASH-TABLE 头文件
     ├── sm4_gcm.c # SM4 GCM 模式实现
     ├── sm4_gcm.h # SM4 GCM 头文件
     └── sm4_gcm_test.c # GCM 模式测试程序

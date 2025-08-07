@@ -4,10 +4,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+//为查找表做准备
+typedef uint64_t HTable[256][2];
+
 // GHASH 上下文
 typedef struct {
   uint8_t H[16]; // 密钥 H（E_K(0^128)）
   uint8_t Y[16]; // 累加器
+  HTable table;  // 查表
 } GHASH_CTX;
 
 // 初始化 GHASH 上下文

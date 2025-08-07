@@ -35,12 +35,15 @@ void gctr_encrypt(const uint8_t *in, uint8_t *out, size_t len,
 }
 
 void gcm_sm4_init(GCM_SM4_CTX *ctx, const uint8_t *key, const uint8_t *iv,
-                  size_t iv_len) {
+                  size_t iv_len, const GHASH_METHOD *ghash_impl) {
+
   static const uint8_t ZERO[16] = {0};
+
+  ctx->ghash = ghash_impl;
 
   sm4_keyInit(key, &ctx->sm4_key);
   sm4_encrypt(ZERO, &ctx->sm4_key, ctx->H);
-  ghash_init(&ctx->ghash_ctx, ctx->H);
+  ctx->ghash->init(&ctx->ghash_ctx, ctx->H);
 
   if (iv_len == 12) {
     memcpy(ctx->counter0, iv, 12);
@@ -49,17 +52,17 @@ void gcm_sm4_init(GCM_SM4_CTX *ctx, const uint8_t *key, const uint8_t *iv,
     ctx->counter0[14] = 0;
     ctx->counter0[15] = 1;
   } else {
-    ghash_update(&ctx->ghash_ctx, iv, iv_len);
+    ctx->ghash->update(&ctx->ghash_ctx, iv, iv_len);
     size_t pad = (16 - (iv_len % 16)) % 16;
     uint8_t zero_pad[16] = {0};
-    ghash_update(&ctx->ghash_ctx, zero_pad, pad);
+    ctx->ghash->update(&ctx->ghash_ctx, zero_pad, pad);
 
     uint8_t len_block[16];
     store64_be(len_block, 0);
     store64_be(len_block + 8, iv_len * 8);
-    ghash_update(&ctx->ghash_ctx, len_block, 16);
-    ghash_final(&ctx->ghash_ctx, ctx->counter0);
-    ghash_reset(&ctx->ghash_ctx);
+    ctx->ghash->update(&ctx->ghash_ctx, len_block, 16);
+    ctx->ghash->final(&ctx->ghash_ctx, ctx->counter0);
+    ctx->ghash->reset(&ctx->ghash_ctx);
   }
 
   memcpy(ctx->counter, ctx->counter0, 16);
@@ -68,29 +71,29 @@ void gcm_sm4_init(GCM_SM4_CTX *ctx, const uint8_t *key, const uint8_t *iv,
 }
 
 void gcm_sm4_aad(GCM_SM4_CTX *ctx, const uint8_t *aad, size_t aad_len) {
-  ghash_update(&ctx->ghash_ctx, aad, aad_len);
+  ctx->ghash->update(&ctx->ghash_ctx, aad, aad_len);
   size_t pad = (16 - (aad_len % 16)) % 16;
   uint8_t zero_pad[16] = {0};
-  ghash_update(&ctx->ghash_ctx, zero_pad, pad);
+  ctx->ghash->update(&ctx->ghash_ctx, zero_pad, pad);
   ctx->aad_len = aad_len;
 }
 
 void gcm_sm4_encrypt(GCM_SM4_CTX *ctx, const uint8_t *plaintext, size_t len,
                      uint8_t *ciphertext) {
   gctr_encrypt(plaintext, ciphertext, len, ctx->counter, &ctx->sm4_key);
-  ghash_update(&ctx->ghash_ctx, ciphertext, len);
+  ctx->ghash->update(&ctx->ghash_ctx, ciphertext, len);
   size_t pad = (16 - (len % 16)) % 16;
   uint8_t zero_pad[16] = {0};
-  ghash_update(&ctx->ghash_ctx, zero_pad, pad);
+  ctx->ghash->update(&ctx->ghash_ctx, zero_pad, pad);
   ctx->ct_len = len;
 }
 
 void gcm_sm4_decrypt(GCM_SM4_CTX *ctx, const uint8_t *ciphertext, size_t len,
                      uint8_t *plaintext) {
-  ghash_update(&ctx->ghash_ctx, ciphertext, len);
+  ctx->ghash->update(&ctx->ghash_ctx, ciphertext, len);
   size_t pad = (16 - (len % 16)) % 16;
   uint8_t zero_pad[16] = {0};
-  ghash_update(&ctx->ghash_ctx, zero_pad, pad);
+  ctx->ghash->update(&ctx->ghash_ctx, zero_pad, pad);
   ctx->ct_len = len;
   gctr_encrypt(ciphertext, plaintext, len, ctx->counter, &ctx->sm4_key);
 }
@@ -99,10 +102,10 @@ void gcm_sm4_tag(GCM_SM4_CTX *ctx, uint8_t tag[16]) {
   uint8_t len_block[16];
   store64_be(len_block, ctx->aad_len * 8);
   store64_be(len_block + 8, ctx->ct_len * 8);
-  ghash_update(&ctx->ghash_ctx, len_block, 16);
+  ctx->ghash->update(&ctx->ghash_ctx, len_block, 16);
 
   uint8_t S[16];
-  ghash_final(&ctx->ghash_ctx, S);
+  ctx->ghash->final(&ctx->ghash_ctx, S);
 
   sm4_encrypt(ctx->counter0, &ctx->sm4_key, tag);
   for (int i = 0; i < 16; i++) {
@@ -113,12 +116,13 @@ void gcm_sm4_tag(GCM_SM4_CTX *ctx, uint8_t tag[16]) {
 int sm4_gcm_decrypt(const uint8_t *key, const uint8_t *iv, size_t iv_len,
                     const uint8_t *aad, size_t aad_len,
                     const uint8_t *ciphertext, size_t cipher_len,
-                    const uint8_t *expected_tag, uint8_t *plaintext) {
+                    const uint8_t *expected_tag, uint8_t *plaintext,
+                    const GHASH_METHOD *ghash_impl) {
   GCM_SM4_CTX ctx;
   uint8_t computed_tag[16];
 
   // 初始化上下文
-  gcm_sm4_init(&ctx, key, iv, iv_len);
+  gcm_sm4_init(&ctx, key, iv, iv_len, ghash_impl);
 
   // AAD 认证数据处理
   if (aad_len > 0 && aad != NULL) {
